@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>GASカレンダーイベント登録ツール</title>
+  <style>
+    /* 完全リセット */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
+      line-height: 1.6;
+      background: white;
+    }
+
+    /* デスクトップ用の背景とレイアウト */
+    @media (min-width: 1025px) {
+      body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 32px;
+      }
+      
+      .container {
+        max-width: 700px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 24px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      }
+      
+      .content {
+        padding: 36px 40px 44px;
+      }
+      
+      .header {
+        padding: 32px 24px;
+      }
+      
+      .calendar-day:hover {
+        background: #f0f0f0;
+        transform: translateY(-2px);
+      }
+      
+      .calendar-day.selected:hover {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+      
+      .btn:hover {
+        transform: translateY(-2px);
+      }
+    }
+
+    /* モバイル・タブレット専用 - 画面いっぱい */
+    @media (max-width: 1024px) {
+      html, body {
+        overflow-x: hidden;
+      }
+      
+      .container {
+        width: 100vw;
+        max-width: 100vw;
+        margin: 0;
+        padding: 0;
+      }
+      
+      .content {
+        padding: 20px 16px 24px 16px;
+      }
+      
+      .header {
+        padding: 24px 16px;
+      }
+      
+      .header h1 {
+        font-size: 36px !important;
+        padding: 0;
+        font-weight: 800 !important;
+      }
+      
+      .header p {
+        font-size: 22px !important;
+        padding: 0;
+      }
+      
+      .form-label {
+        font-size: 28px !important;
+        padding: 0;
+        font-weight: 800 !important;
+      }
+      
+      .form-sublabel {
+        font-size: 22px !important;
+        padding: 0;
+      }
+      
+      .form-input,
+      .form-select {
+        font-size: 28px !important;
+        min-height: 80px !important;
+        padding: 26px 16px !important;
+        border-radius: 12px !important;
+      }
+      
+      .form-select {
+        padding-right: 60px !important;
+        background-size: 44px !important;
+        background-position: right 16px center !important;
+      }
+      
+      .calendar-wrapper {
+        padding: 12px 16px !important;
+        border-radius: 12px !important;
+      }
+      
+      .calendar-header {
+        font-size: 20px !important;
+        font-weight: 800 !important;
+      }
+      
+      .calendar-grid {
+        gap: 8px !important;
+      }
+      
+      .calendar-day {
+        font-size: 26px !important;
+        min-height: 76px !important;
+        font-weight: 800 !important;
+        border-radius: 12px !important;
+        border-width: 3px !important;
+      }
+      
+      .radio-label {
+        font-size: 28px !important;
+        min-height: 80px !important;
+        padding: 26px 12px !important;
+        border-radius: 12px !important;
+        font-weight: 700 !important;
+      }
+      
+      .radio-group {
+        gap: 10px !important;
+      }
+      
+      .btn {
+        font-size: 28px !important;
+        min-height: 84px !important;
+        padding: 28px 12px !important;
+        font-weight: 800 !important;
+        border-radius: 12px !important;
+      }
+      
+      .button-group {
+        gap: 10px !important;
+      }
+      
+      .time-input-group label {
+        font-size: 22px !important;
+        padding: 0;
+        font-weight: 700 !important;
+      }
+      
+      .time-inputs {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+      }
+      
+      .event-list {
+        padding: 18px 16px !important;
+        border-radius: 12px !important;
+      }
+      
+      .event-list-header {
+        font-size: 28px !important;
+        font-weight: 800 !important;
+      }
+      
+      .event-name {
+        font-size: 24px !important;
+        font-weight: 800 !important;
+      }
+      
+      .event-details {
+        font-size: 20px !important;
+      }
+      
+      .event-item {
+        padding: 20px 16px !important;
+        border-radius: 12px !important;
+      }
+      
+      .btn-delete {
+        font-size: 22px !important;
+        min-height: 72px !important;
+        font-weight: 800 !important;
+        border-radius: 12px !important;
+        padding: 16px 20px !important;
+      }
+      
+      .message {
+        font-size: 22px !important;
+        padding: 24px 16px !important;
+        border-radius: 12px !important;
+      }
+      
+      .info-box {
+        padding: 20px 16px !important;
+        border-radius: 12px !important;
+      }
+      
+      .info-box p {
+        font-size: 22px !important;
+      }
+      
+      .form-section {
+        margin-bottom: 32px !important;
+      }
+      
+      .section-divider {
+        margin: 28px 0 !important;
+      }
+      
+      .scrollable-list p {
+        font-size: 22px !important;
+      }
+    }
+
+    .container {
+      background: white;
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      font-size: 15px;
+      opacity: 0.95;
+    }
+
+    .form-section {
+      margin-bottom: 32px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 17px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 12px;
+    }
+
+    .form-sublabel {
+      display: block;
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 12px;
+    }
+
+    .form-input,
+    .form-select {
+      width: 100%;
+      padding: 18px 20px;
+      font-size: 17px;
+      border: 2px solid #e5e5e5;
+      border-radius: 16px;
+      transition: all 0.3s;
+      background: white;
+      color: #1a1a1a;
+      appearance: none;
+      -webkit-appearance: none;
+      min-height: 60px;
+    }
+
+    .form-select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23667eea' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 16px center;
+      background-size: 24px;
+      padding-right: 50px;
+    }
+
+    .form-input:focus,
+    .form-select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+      transform: translateY(-1px);
+    }
+
+    .calendar-wrapper {
+      background: #f8f9fa;
+      padding: 16px;
+      border-radius: 16px;
+      margin-top: 12px;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .calendar-header {
+      text-align: center;
+      font-size: 14px;
+      font-weight: 700;
+      color: #555;
+      padding: 12px 4px;
+      background: #e9ecef;
+      border-radius: 10px;
+    }
+
+    .calendar-day {
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 600;
+      border: 3px solid #e5e5e5;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: white;
+      min-height: 56px;
+      color: #1a1a1a;
+    }
+
+    .calendar-day:active {
+      transform: scale(0.92);
+    }
+
+    .calendar-day.selected {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-color: #667eea;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .radio-group {
+      display: flex;
+      gap: 12px;
+    }
+
+    .radio-option {
+      flex: 1;
+    }
+
+    .radio-option input[type="radio"] {
+      display: none;
+    }
+
+    .radio-label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px 24px;
+      border: 3px solid #e5e5e5;
+      border-radius: 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 17px;
+      font-weight: 600;
+      min-height: 60px;
+    }
+
+    .radio-option input[type="radio"]:checked + .radio-label {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-color: #667eea;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .radio-label:active {
+      transform: scale(0.97);
+    }
+
+    .time-inputs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .time-input-group label {
+      font-size: 15px;
+      font-weight: 600;
+      color: #444;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .button-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 32px;
+    }
+
+    .btn {
+      padding: 20px 28px;
+      font-size: 18px;
+      font-weight: 700;
+      border: none;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.3s;
+      min-height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn:active {
+      transform: translateY(2px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+      background: #ff4757;
+      color: white;
+      box-shadow: 0 6px 20px rgba(255, 71, 87, 0.3);
+    }
+
+    .btn-tertiary {
+      background: #f8f9fa;
+      color: #444;
+      border: 2px solid #e5e5e5;
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, #26de81 0%, #20bf6b 100%);
+      color: white;
+      box-shadow: 0 6px 20px rgba(38, 222, 129, 0.3);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-full {
+      width: 100%;
+      grid-column: 1 / -1;
+    }
+
+    .message {
+      padding: 18px 20px;
+      border-radius: 14px;
+      font-size: 16px;
+      font-weight: 600;
+      text-align: center;
+      margin-top: 24px;
+    }
+
+    .message-success {
+      background: #d4edda;
+      color: #155724;
+      border: 2px solid #c3e6cb;
+    }
+
+    .message-error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 2px solid #f5c6cb;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .event-list {
+      margin-top: 32px;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 16px;
+    }
+
+    .event-list-header {
+      font-size: 19px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 16px;
+    }
+
+    .event-item {
+      background: white;
+      padding: 18px 20px;
+      border-radius: 14px;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      gap: 12px;
+    }
+
+    .event-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .event-name {
+      font-size: 17px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 6px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .event-details {
+      font-size: 14px;
+      color: #666;
+    }
+
+    .btn-delete {
+      background: #ff4757;
+      color: white;
+      padding: 14px 20px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      min-width: 80px;
+      min-height: 52px;
+      flex-shrink: 0;
+    }
+
+    .btn-delete:active {
+      transform: scale(0.95);
+    }
+
+    .section-divider {
+      border-top: 3px solid #e9ecef;
+      margin: 36px 0;
+    }
+
+    .info-box {
+      background: #e7f3ff;
+      border: 2px solid #b3d9ff;
+      border-radius: 14px;
+      padding: 16px 20px;
+      margin-bottom: 16px;
+    }
+
+    .info-box p {
+      font-size: 15px;
+      color: #004085;
+      line-height: 1.6;
+    }
+
+    .scrollable-list {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>📅 カレンダーイベント登録</h1>
+      <p>簡単にGoogleカレンダーへイベントを追加</p>
+    </div>
+
+    <div class="content">
+      <!-- カレンダーID -->
+      <div class="form-section">
+        <label class="form-label">カレンダーID</label>
+        <input type="email" id="calendarId" class="form-input" placeholder="your_email@gmail.com">
+      </div>
+
+      <!-- 月選択 -->
+      <div class="form-section">
+        <label class="form-label">月を選択</label>
+        <input type="month" id="month" class="form-input">
+      </div>
+
+      <!-- 日付選択 -->
+      <div class="form-section">
+        <label class="form-label">日付を選択</label>
+        <div class="calendar-wrapper">
+          <div id="dayGrid" class="calendar-grid"></div>
+          <button id="selectAllDays" class="btn btn-tertiary btn-full">全選択 / 解除</button>
+        </div>
+      </div>
+
+      <!-- イベント名 -->
+      <div class="form-section">
+        <label class="form-label">イベント名</label>
+        <input type="text" id="eventTitle" class="form-input" placeholder="例: 会議、誕生日">
+      </div>
+
+      <!-- イベントタイプ -->
+      <div class="form-section">
+        <label class="form-label">イベントタイプ</label>
+        <div class="radio-group">
+          <div class="radio-option">
+            <input type="radio" name="eventType" value="allDay" id="eventTypeAllDay" checked>
+            <label for="eventTypeAllDay" class="radio-label">終日</label>
+          </div>
+          <div class="radio-option">
+            <input type="radio" name="eventType" value="timed" id="eventTypeTimed">
+            <label for="eventTypeTimed" class="radio-label">時間指定</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- 時間指定 -->
+      <div id="timeInputs" class="form-section" style="display: none;">
+        <div class="time-inputs">
+          <div class="time-input-group">
+            <label>開始時間</label>
+            <input type="time" id="startTime" class="form-input" value="09:00">
+          </div>
+          <div class="time-input-group">
+            <label>終了時間</label>
+            <input type="time" id="endTime" class="form-input" value="17:00">
+          </div>
+        </div>
+      </div>
+
+      <!-- イベント色 -->
+      <div class="form-section">
+        <label class="form-label">イベントの色</label>
+        <select id="eventColor" class="form-select">
+          <option value="">デフォルト</option>
+          <option value="LAVENDER">🟣 ラベンダー</option>
+          <option value="SAGE">🟢 セージ</option>
+          <option value="PURPLE">🟣 ブドウ</option>
+          <option value="PINK">🩷 フラミンゴ</option>
+          <option value="YELLOW">🟡 バナナ</option>
+          <option value="ORANGE">🟠 ミカン</option>
+          <option value="CYAN">🔵 ピーコック</option>
+          <option value="GREY">⚪ グラファイト</option>
+          <option value="BLUE">🔵 ブルーベリー</option>
+          <option value="GREEN">🟢 バジル</option>
+          <option value="RED">🔴 トマト</option>
+        </select>
+      </div>
+
+      <!-- 登録・クリアボタン -->
+      <div class="button-group">
+        <button id="addEventButton" class="btn btn-primary">📝 登録</button>
+        <button id="clearInputs" class="btn btn-secondary">🗑️ クリア</button>
+      </div>
+
+      <!-- メッセージエリア -->
+      <div id="messageArea" class="hidden"></div>
+
+      <div class="section-divider"></div>
+
+      <!-- 保存済みイベント選択 -->
+      <div class="form-section">
+        <label class="form-label">保存済みイベントを選択</label>
+        <p class="form-sublabel">過去に保存したイベント設定を読み込めます</p>
+        <select id="selectSavedEventName" class="form-select">
+          <option value="">-- 選択してください --</option>
+        </select>
+      </div>
+
+      <div class="section-divider"></div>
+
+      <!-- イベントリスト -->
+      <div class="event-list">
+        <div class="event-list-header">💾 保存済みイベント</div>
+        <div id="eventNamesList" class="scrollable-list">
+          <p style="color: #666; font-size: 15px;">読み込み中...</p>
+        </div>
+      </div>
+
+      <!-- 新規イベント追加 -->
+      <div class="form-section" style="margin-top: 32px;">
+        <label class="form-label">新しいイベントを保存</label>
+        <p class="form-sublabel">よく使うイベント設定を保存しておけます</p>
+        
+        <div style="margin-bottom: 16px;">
+          <input type="text" id="newEventNameInput" class="form-input" placeholder="イベント名を入力">
+        </div>
+
+        <div style="margin-bottom: 16px;">
+          <label class="form-label" style="font-size: 15px; margin-bottom: 10px;">タイプ</label>
+          <div class="radio-group">
+            <div class="radio-option">
+              <input type="radio" name="newEventEventType" value="allDay" id="newEventEventTypeAllDay" checked>
+              <label for="newEventEventTypeAllDay" class="radio-label">終日</label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" name="newEventEventType" value="timed" id="newEventEventTypeTimed">
+              <label for="newEventEventTypeTimed" class="radio-label">時間指定</label>
+            </div>
+          </div>
+        </div>
+
+        <div id="newEventNameInputs" class="time-inputs" style="display: none; margin-bottom: 16px;">
+          <div class="time-input-group">
+            <label>開始時間</label>
+            <input type="time" id="newStartTime" class="form-input" value="09:00">
+          </div>
+          <div class="time-input-group">
+            <label>終了時間</label>
+            <input type="time" id="newEndTime" class="form-input" value="17:00">
+          </div>
+        </div>
+
+        <div style="margin-bottom: 16px;">
+          <label class="form-label" style="font-size: 15px; margin-bottom: 10px;">色</label>
+          <select id="newEventColor" class="form-select">
+            <option value="">デフォルト</option>
+            <option value="LAVENDER">🟣 ラベンダー</option>
+            <option value="SAGE">🟢 セージ</option>
+            <option value="PURPLE">🟣 ブドウ</option>
+            <option value="PINK">🩷 フラミンゴ</option>
+            <option value="YELLOW">🟡 バナナ</option>
+            <option value="ORANGE">🟠 ミカン</option>
+            <option value="CYAN">🔵 ピーコック</option>
+            <option value="GREY">⚪ グラファイト</option>
+            <option value="BLUE">🔵 ブルーベリー</option>
+            <option value="GREEN">🟢 バジル</option>
+            <option value="RED">🔴 トマト</option>
+          </select>
+        </div>
+
+        <button id="addEventNameButton" class="btn btn-success btn-full">✅ イベントを保存</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const calendarIdInput = document.getElementById('calendarId');
+      const monthInput = document.getElementById('month');
+      const dayGridDiv = document.getElementById('dayGrid');
+      const selectAllDaysButton = document.getElementById('selectAllDays');
+      const eventTitleInput = document.getElementById('eventTitle');
+      const newEventNameInput = document.getElementById('newEventNameInput');
+      const addEventButton = document.getElementById('addEventButton');
+      const clearInputsButton = document.getElementById('clearInputs');
+      const eventTypeAllDay = document.getElementById('eventTypeAllDay');
+      const eventTypeTimed = document.getElementById('eventTypeTimed');
+      const timeInputsDiv = document.getElementById('timeInputs');
+      const startTimeInput = document.getElementById('startTime');
+      const endTimeInput = document.getElementById('endTime');
+      const eventColorInput = document.getElementById('eventColor');
+      const selectSavedEventName = document.getElementById('selectSavedEventName');
+      const newEventEventTypeAllDay = document.getElementById('newEventEventTypeAllDay');
+      const newEventEventTypeTimed = document.getElementById('newEventEventTypeTimed');
+      const newStartTimeInput = document.getElementById('newStartTime');
+      const newEndTimeInput = document.getElementById('newEndTime');
+      const newEventColorInput = document.getElementById('newEventColor');
+      const addEventNameButton = document.getElementById('addEventNameButton');
+      const messageArea = document.getElementById('messageArea');
+      const eventNamesListDiv = document.getElementById('eventNamesList');
+      
+      let selectedDays = new Set();
+      let currentUserEmail = '';
+      
+      const today = new Date();
+      const currentMonth = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0');
+      monthInput.value = currentMonth;
+      
+      eventTypeAllDay.addEventListener('change', toggleTimeInputs);
+      eventTypeTimed.addEventListener('change', toggleTimeInputs);
+      newEventEventTypeAllDay.addEventListener('change', toggleNewEventTimeInputs);
+      newEventEventTypeTimed.addEventListener('change', toggleNewEventTimeInputs);
+      monthInput.addEventListener('change', updateDayGrid);
+      
+      toggleTimeInputs();
+      toggleNewEventTimeInputs();
+      updateDayGrid();
+      
+      google.script.run
+        .withSuccessHandler(function(data) {
+          currentUserEmail = data.userEmail;
+          if (currentUserEmail) {
+            calendarIdInput.value = currentUserEmail;
+          }
+          renderEventNames(data.eventNames);
+        })
+        .withFailureHandler(function(error) {
+          console.error('ユーザー情報取得失敗:', error.message);
+          showMessage('ユーザー情報が取得できませんでした', true);
+        })
+        .getCurrentUserEmailAndEventNames();
+      
+      selectSavedEventName.addEventListener('change', function() {
+        const selectedValue = this.value;
+        if (selectedValue) {
+          google.script.run
+            .withSuccessHandler(function(eventDetails) {
+              if (eventDetails) {
+                eventTitleInput.value = eventDetails.name;
+                if (eventDetails.isAllDay) {
+                  eventTypeAllDay.checked = true;
+                } else {
+                  eventTypeTimed.checked = true;
+                }
+                toggleTimeInputs();
+                startTimeInput.value = eventDetails.startTime || '09:00';
+                endTimeInput.value = eventDetails.endTime || '17:00';
+                eventColorInput.value = eventDetails.eventColor || '';
+                showMessage('✅ イベント設定を読み込みました', false);
+              }
+            })
+            .withFailureHandler(function(error) {
+              showMessage('❌ 読み込み失敗: ' + error.message, true);
+            })
+            .getEventNameDetails(selectedValue);
+        }
+      });
+      
+      selectAllDaysButton.addEventListener('click', function() {
+        const allDayButtons = dayGridDiv.querySelectorAll('button');
+        const allSelected = allDayButtons.length === selectedDays.size;
+        
+        allDayButtons.forEach(button => {
+          const day = button.dataset.day;
+          if (allSelected) {
+            button.classList.remove('selected');
+            selectedDays.delete(day);
+          } else {
+            button.classList.add('selected');
+            selectedDays.add(day);
+          }
+        });
+      });
+      
+      function showMessage(message, isError = false) {
+        messageArea.textContent = message;
+        messageArea.className = isError ? 'message message-error' : 'message message-success';
+        setTimeout(() => messageArea.classList.add('hidden'), 5000);
+      }
+      
+      function renderEventNames(names) {
+        selectSavedEventName.innerHTML = '<option value="">-- 選択してください --</option>';
+        eventNamesListDiv.innerHTML = '';
+        
+        if (names && names.length > 0) {
+          names.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item.name;
+            option.textContent = item.name;
+            selectSavedEventName.appendChild(option);
+            
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'event-item';
+            const typeText = item.isAllDay ? '終日' : `${item.startTime || '00:00'}-${item.endTime || '00:00'}`;
+            const colorText = item.eventColor ? getColorEmoji(item.eventColor) : '';
+            
+            itemDiv.innerHTML = `
+              <div class="event-info">
+                <div class="event-name">${colorText} ${item.name}</div>
+                <div class="event-details">${typeText}</div>
+              </div>
+              <button class="btn-delete" data-name="${item.name}">削除</button>
+            `;
+            
+            itemDiv.querySelector('button').addEventListener('click', function() {
+              if (confirm('「' + this.dataset.name + '」を削除しますか?')) {
+                deleteEventNameFromList(this.dataset.name);
+              }
+            });
+            
+            eventNamesListDiv.appendChild(itemDiv);
+          });
+        } else {
+          eventNamesListDiv.innerHTML = '<p style="color: #999; font-size: 15px; text-align: center; padding: 20px;">保存済みイベントはありません</p>';
+        }
+      }
+      
+      function getColorEmoji(color) {
+        const colorMap = {
+          'LAVENDER': '🟣', 'SAGE': '🟢', 'PURPLE': '🟣', 'PINK': '🩷',
+          'YELLOW': '🟡', 'ORANGE': '🟠', 'CYAN': '🔵', 'GREY': '⚪',
+          'BLUE': '🔵', 'GREEN': '🟢', 'RED': '🔴'
+        };
+        return colorMap[color] || '';
+      }
+      
+      function addEventNameToList() {
+        const newName = newEventNameInput.value.trim();
+        if (!newName) {
+          showMessage('❌ イベント名を入力してください', true);
+          return;
+        }
+        
+        const isAllDay = newEventEventTypeAllDay.checked;
+        const startTime = newStartTimeInput.value;
+        const endTime = newEndTimeInput.value;
+        const eventColor = newEventColorInput.value;
+        
+        if (!isAllDay && (!startTime || !endTime)) {
+          showMessage('❌ 開始・終了時間を入力してください', true);
+          return;
+        }
+        
+        showMessage('保存中...', false);
+        google.script.run
+          .withSuccessHandler(function(updatedNames) {
+            renderEventNames(updatedNames);
+            newEventNameInput.value = '';
+            showMessage('✅ イベントを保存しました', false);
+          })
+          .withFailureHandler(function(error) {
+            showMessage('❌ 保存失敗: ' + error.message, true);
+          })
+          .addEventNames({
+            name: newName,
+            isAllDay: isAllDay,
+            startTime: startTime,
+            endTime: endTime,
+            eventColor: eventColor
+          });
+      }
+      
+      function deleteEventNameFromList(nameToDelete) {
+        google.script.run
+          .withSuccessHandler(function(updatedNames) {
+            renderEventNames(updatedNames);
+            showMessage('✅ 削除しました', false);
+          })
+          .withFailureHandler(function(error) {
+            showMessage('❌ 削除失敗: ' + error.message, true);
+          })
+          .deleteEventNameFromList(nameToDelete);
+      }
+      
+      addEventNameButton.addEventListener('click', addEventNameToList);
+      
+      addEventButton.addEventListener('click', function() {
+        const calendarId = calendarIdInput.value.trim();
+        const month = monthInput.value;
+        const eventTitle = eventTitleInput.value.trim();
+        const isAllDay = eventTypeAllDay.checked;
+        const startTime = startTimeInput.value;
+        const endTime = endTimeInput.value;
+        const eventColor = eventColorInput.value;
+        
+        if (!calendarId || !month || !eventTitle || selectedDays.size === 0) {
+          showMessage('❌ すべて入力して日付を選択してください', true);
+          return;
+        }
+        
+        if (!isAllDay && (!startTime || !endTime)) {
+          showMessage('❌ 開始・終了時間を入力してください', true);
+          return;
+        }
+        
+        const sortedDays = Array.from(selectedDays).sort((a, b) => Number(a) - Number(b));
+        
+        const originalText = addEventButton.textContent;
+        addEventButton.innerHTML = '登録中...';
+        addEventButton.disabled = true;
+        
+        google.script.run
+          .withSuccessHandler(function(message) {
+            showMessage('✅ ' + message, false);
+            addEventButton.textContent = originalText;
+            addEventButton.disabled = false;
+          })
+          .withFailureHandler(function(error) {
+            showMessage('❌ ' + error.message, true);
+            addEventButton.textContent = originalText;
+            addEventButton.disabled = false;
+          })
+          .addEventsToCalendarDirectly(calendarId, month, sortedDays, eventTitle, isAllDay, startTime, endTime, eventColor);
+      });
+      
+      clearInputsButton.addEventListener('click', function() {
+        calendarIdInput.value = currentUserEmail;
+        monthInput.value = currentMonth;
+        eventTitleInput.value = '';
+        newEventNameInput.value = '';
+        eventTypeAllDay.checked = true;
+        newEventEventTypeAllDay.checked = true;
+        toggleTimeInputs();
+        toggleNewEventTimeInputs();
+        startTimeInput.value = '09:00';
+        endTimeInput.value = '17:00';
+        newStartTimeInput.value = '09:00';
+        newEndTimeInput.value = '17:00';
+        eventColorInput.value = '';
+        newEventColorInput.value = '';
+        selectSavedEventName.value = '';
+        updateDayGrid();
+        messageArea.classList.add('hidden');
+        showMessage('✅ クリアしました', false);
+      });
+      
+      function updateDayGrid() {
+        dayGridDiv.innerHTML = '';
+        selectedDays.clear();
+        
+        const [year, month] = monthInput.value.split('-').map(Number);
+        if (isNaN(year) || isNaN(month)) {
+          dayGridDiv.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #ff4757;">有効な年月を選択してください</p>';
+          return;
+        }
+        
+        const daysInMonth = new Date(year, month, 0).getDate();
+        const dayNames = ['日', '月', '火', '水', '木', '金', '土'];
+        
+        dayNames.forEach(name => {
+          const dayNameDiv = document.createElement('div');
+          dayNameDiv.textContent = name;
+          dayNameDiv.className = 'calendar-header';
+          dayGridDiv.appendChild(dayNameDiv);
+        });
+        
+        const firstDayOfMonth = new Date(year, month - 1, 1).getDay();
+        
+        for (let i = 0; i < firstDayOfMonth; i++) {
+          const emptyDiv = document.createElement('div');
+          dayGridDiv.appendChild(emptyDiv);
+        }
+        
+        for (let i = 1; i <= daysInMonth; i++) {
+          const button = document.createElement('button');
+          button.textContent = i;
+          button.className = 'calendar-day';
+          button.dataset.day = i;
+          button.addEventListener('click', function() {
+            this.classList.toggle('selected');
+            const day = this.dataset.day;
+            if (this.classList.contains('selected')) {
+              selectedDays.add(day);
+            } else {
+              selectedDays.delete(day);
+            }
+          });
+          dayGridDiv.appendChild(button);
+        }
+      }
+      
+      function toggleTimeInputs() {
+        timeInputsDiv.style.display = eventTypeTimed.checked ? 'block' : 'none';
+      }
+      
+      function toggleNewEventTimeInputs() {
+        document.getElementById('newEventNameInputs').style.display = 
+          newEventEventTypeTimed.checked ? 'grid' : 'none';
+      }
+    });
+  </script>
+</body>
+</html>
