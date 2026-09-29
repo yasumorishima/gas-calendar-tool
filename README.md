@@ -70,15 +70,17 @@ This tool simplifies recurring event scheduling by allowing batch calendar event
 
 ### Usage
 
-1. Open the deployed web app URL (デプロイされたWebアプリのURLを開く)
-2. Enter your calendar ID (usually your Gmail address)
-   - (カレンダーIDを入力 - 通常はGmailアドレス)
-3. Select month and dates for events (月と日付を選択)
-4. Enter event details (name, type, time, color)
-   - (イベントの詳細を入力 - 名前、種類、時刻、色)
-5. Click "登録" (Register) to create events (「登録」をクリックしてイベントを作成)
-6. Save frequently used events for quick reuse
-   - (よく使うイベントを保存して次回から簡単に再利用)
+The screen is a single flow of three steps. (画面は ①→②→③ の一本の流れになっています)
+
+1. **① 予定の内容 (Event details)**
+   - Tap a "よく使う予定" (saved template) to fill in the form, or type name / time / color yourself.
+   - (「よく使う予定」をタップすると入力欄に反映されます。手入力も可能)
+   - "⭐ この内容を「よく使う予定」に保存" saves the current form as a template. **This does NOT add anything to the calendar.** Saving with an existing name overwrites it.
+   - (保存ボタンはテンプレートとして保存するだけで、カレンダーには登録されません。同じ名前で保存すると上書きされます)
+2. **② 日付を選ぶ (Pick dates)** — choose the month and tap one or more dates (月を選び、日付を複数タップ)
+3. **③ カレンダーに登録 (Register)** — check the summary ("「早番」を 9月 3日・10日 の 2日分 登録します") and press "📅 カレンダーに登録する".
+   - (内容の確認文を見てから登録ボタンを押します。登録先カレンダーは通常変更不要です)
+4. Templates can be deleted from "⚙️ よく使う予定の管理" at the bottom (一番下の管理欄から削除できます)
 
 ## 📱 Mobile Optimization
 

@@ -36,7 +36,7 @@ function getCurrentUserEmailAndEventNames() {
 }
 
 /**
- * ユーザーのイベントリストに新しいイベント名を追加します。
+ * ユーザーのイベントリストに新しいイベント名を追加します（同じ名前があれば上書きします）。
  * @param {Object} newEventDetails 追加するイベントの詳細 { name: string, isAllDay: boolean, startTime: string, endTime: string, eventColor: string }
  * @returns {Object[]} 更新されたイベント名リスト
  */
@@ -54,16 +54,21 @@ function addEventNames(newEventDetails) {
     eventNames = JSON.parse(storedNamesJson);
   }
   
-  // 重複チェック（名前のみの場合をとりあえず確認）
-  var nameExists = eventNames.some(function(item) {
-    return item.name === newEventDetails.name;
+  // 同じ名前があれば上書き、なければ追加
+  var existingIndex = -1;
+  eventNames.forEach(function(item, index) {
+    if (item.name === newEventDetails.name) {
+      existingIndex = index;
+    }
   });
-  
-  if (!nameExists) {
+
+  if (existingIndex !== -1) {
+    eventNames[existingIndex] = newEventDetails;
+  } else {
     eventNames.push(newEventDetails);
-    userProperties.setProperty('savedEventNames', JSON.stringify(eventNames));
   }
-  
+  userProperties.setProperty('savedEventNames', JSON.stringify(eventNames));
+
   return eventNames;
 }
 
