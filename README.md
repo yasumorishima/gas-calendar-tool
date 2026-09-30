@@ -68,6 +68,18 @@ This tool simplifies recurring event scheduling by allowing batch calendar event
    - Who has access: "Anyone with Google account"
    - Click "Deploy"
 
+### Auto deploy (自動デプロイ)
+
+Pushing changes to `Code.gs` / `Index.html` / `appsscript.json` on `main` triggers
+`.github/workflows/deploy-gas.yml`, which runs `clasp push` and updates the existing
+web app deployment to a new version (the URL stays the same).
+(`main` に反映すると GitHub Actions が clasp で自動デプロイし、同じURLのまま新バージョンになります)
+
+- Required secret: `CLASPRC_JSON` — contents of `~/.clasprc.json` after `clasp login`
+  (リポジトリの Settings → Secrets and variables → Actions に登録)
+- Script ID is in `.clasp.json`, deployment ID in the workflow file
+- Can also be run manually from the Actions tab ("Run workflow")
+
 ### Usage
 
 The screen is a single flow of three steps. (画面は ①→②→③ の一本の流れになっています)
