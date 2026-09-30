@@ -14,8 +14,10 @@ This tool simplifies recurring event scheduling by allowing batch calendar event
 ### Event Management
 - **Batch Event Creation:** Select multiple dates and create events in one operation
   - (複数日程の一括登録)
-- **Event Templates:** Save frequently used event configurations for quick reuse
-  - (よく使うイベント設定をテンプレートとして保存)
+- **Event Templates ("よく使う予定"):** Save frequently used event configurations and fill the form with one tap
+  - (よく使う予定を保存し、ワンタップで入力欄に反映)
+- **Registration Summary:** Shows exactly what will be added (name, time, dates, count) before registering
+  - (登録前に「何を・いつ・何日分」登録するかを表示)
 - **Flexible Scheduling:** Support for both all-day and timed events
   - (終日イベントと時刻指定イベントの両方に対応)
 - **Color Coding:** Assign colors to events for easy visual identification
@@ -79,6 +81,10 @@ web app deployment to a new version (the URL stays the same).
   (リポジトリの Settings → Secrets and variables → Actions に登録)
 - Script ID is in `.clasp.json`, deployment ID in the workflow file
 - Can also be run manually from the Actions tab ("Run workflow")
+- ⚠️ Do not edit code directly in the Apps Script editor — it will be overwritten by the next auto deploy. Edit on GitHub instead.
+  (GASエディタで直接編集した内容は次の自動デプロイで上書きされます。修正は GitHub 側で行ってください)
+- If the deploy fails with an auth error, run `clasp login` again and update the `CLASPRC_JSON` secret.
+  (認証エラーで失敗したら `clasp login` し直して Secret を更新)
 
 ### Usage
 
@@ -124,7 +130,6 @@ function addEventsToCalendarDirectly(calendarId, month, days, eventTitle, ...)
   - (ピュアなバニラJavaScript - jQueryやフレームワーク不要)
 - CSS Grid for responsive layout
 - Media queries for adaptive design
-- Event delegation for dynamic elements
 
 ### Data Storage
 - User Properties for individual event templates
@@ -149,8 +154,13 @@ function addEventsToCalendarDirectly(calendarId, month, days, eventTitle, ...)
 
 ```
 gas-calendar-tool/
-├── Code.gs          # Google Apps Script backend
-└── Index.html       # Frontend UI
+├── Code.gs                          # Google Apps Script backend
+├── Index.html                       # Frontend UI
+├── appsscript.json                  # Apps Script manifest (timezone, web app settings)
+├── .clasp.json                      # clasp project config (script ID)
+├── .claspignore                     # Only the 3 files above are pushed
+├── .github/workflows/deploy-gas.yml # Auto deploy on merge to main
+└── CLAUDE.md                        # Notes for Claude Code sessions
 ```
 
 ## 🤝 Contributing
